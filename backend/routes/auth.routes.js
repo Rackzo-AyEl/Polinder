@@ -4,9 +4,12 @@ import { protectRoute } from '../middleware/protectRoute.js';
 
 const router = express.Router();
 
-router.post("/me", protectRoute, getMe)
-router.post("/login", login)
-router.post("/logout", logout)
-router.post("/logout", logout)
+// Usar GET para obtener información del perfil del usuario autenticado
+router.get("/me", protectRoute, getMe);
 
-export default router
+// Mantener POST para crear o enviar datos
+router.post("/signup", signup);
+router.post("/login", login);
+router.post("/logout", logout);
+
+export default router;

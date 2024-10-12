@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { type } from 'os';
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -26,6 +25,16 @@ const userSchema = new mongoose.Schema({
         ref: 'User',
         default: [],
     }],
+    friendRequestsSent: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+    }],
+    friendRequestsReceived: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+    }],
     profileImage: {
         type: String,
         default: '',
@@ -39,11 +48,17 @@ const userSchema = new mongoose.Schema({
         default: '',
         maxlength: 2000,
     },
-    /*link: {
-        type: String,
-        required: true,
-    }, me falta lo de la boleta*/
     matches: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+    }],
+    matchRequestsSent: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+    }],
+    matchRequestsReceived: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: [],
@@ -57,4 +72,3 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 export default User;
- 
