@@ -54,6 +54,7 @@ const App = () => {
     <img src={src} alt={alt} className="w-10 h-10 rounded-full object-cover" />
   );
 
+  //
   return (
     <div className={`flex flex-col md:flex-row h-screen bg-red-50 text-red-800 dark:bg-gray-900 dark:text-white`}>
       {/* Mobile top bar */}
