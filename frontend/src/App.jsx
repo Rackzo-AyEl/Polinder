@@ -14,12 +14,9 @@ const App = () => {
     bio: "Wine enthusiast with a passion for outdoor adventures. Looking for someone to share life's moments with."
   });
 
+  // Manejo del modo oscuro en el elemento HTML
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
   const handleProfileUpdate = (e) => {
@@ -36,6 +33,7 @@ const App = () => {
     setIsSettingsOpen(false);
   };
 
+  // Componente Button simplificado
   const Button = ({ children, onClick, className }) => (
     <button
       onClick={onClick}
@@ -45,8 +43,9 @@ const App = () => {
     </button>
   );
 
+  // Componente Card simplificado usando dark: para el modo oscuro
   const Card = ({ children, className }) => (
-    <div className={`${isDarkMode ? 'dark bg-gray-800 text-white' : 'bg-red-300 text-red-800'} rounded-xl shadow-lg ${className}`}>
+    <div className={`rounded-xl shadow-lg bg-red-300 text-red-800 dark:bg-gray-800 dark:text-white ${className}`}>
       {children}
     </div>
   );
@@ -56,7 +55,7 @@ const App = () => {
   );
 
   return (
-    <div className={`flex flex-col md:flex-row h-screen ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-red-50 text-red-800'}`}>
+    <div className={`flex flex-col md:flex-row h-screen bg-red-50 text-red-800 dark:bg-gray-900 dark:text-white`}>
       {/* Mobile top bar */}
       <div className="md:hidden bg-white dark:bg-gray-800 p-4 flex justify-between items-center shadow-md">
         <h1 className="text-xl font-bold text-red-800 dark:text-red-400">Polinder</h1>
@@ -71,8 +70,8 @@ const App = () => {
       </div>
 
       {/* Sidebar */}
-      <div className={`${isSettingsOpen ? 'block' : 'hidden'} md:block w-64 ${isDarkMode ? 'dark bg-gray-800 text-white' : 'bg-red-50 text-red-800'} p-4 flex-shrink-0`}>
-        <h2 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'dark text-red-400' : 'text-red-800' }`}>Profile</h2>
+      <div className={`${isSettingsOpen ? 'block' : 'hidden'} md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0`}>
+        <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">Profile</h2>
         <nav className="space-y-2">
           <Button onClick={() => setIsSettingsOpen(true)} className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700">
             <Settings className="mr-2" />
@@ -91,7 +90,7 @@ const App = () => {
                 onChange={() => setIsDarkMode(!isDarkMode)}
                 className="sr-only"
               />
-              <span className={`block ${isDarkMode ? 'dark bg-gray-600' : 'bg-gray-200'} w-10 h-6 rounded-full shadow-inner`}></span> 
+              <span className="block bg-gray-200 dark:bg-gray-600 w-10 h-6 rounded-full shadow-inner"></span>
               <span
                 className={`absolute left-1 top-1 w-4 h-4 rounded-full transition transform ${isDarkMode ? 'translate-x-4 bg-yellow-500' : 'bg-white'}`}
               ></span>
@@ -127,13 +126,13 @@ const App = () => {
               <h3 className="text-2xl font-bold mb-2">{userProfile.name}, {userProfile.age}</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">{userProfile.occupation}</p>
               <div className="flex justify-between">
-                <Button className={`${isDarkMode ? 'dark bg-gray-700 text-red-400' : 'bg-red-50 text-red-700'} `}>
+                <Button className="bg-red-50 text-red-700 dark:bg-gray-700 dark:text-red-400">
                   <X />
                 </Button>
-                <Button className={`${isDarkMode ? 'dark bg-gray-700 text-red-400' : 'bg-red-50 text-red-700'} `}>
+                <Button className="bg-red-50 text-red-700 dark:bg-gray-700 dark:text-red-400">
                   <Heart />
                 </Button>
-                <Button className={`${isDarkMode ? 'dark bg-gray-700 text-red-400' : 'bg-red-50 text-red-700'} `}>
+                <Button className="bg-red-50 text-red-700 dark:bg-gray-700 dark:text-red-400">
                   <UserPlus />
                 </Button>
               </div>
@@ -171,13 +170,13 @@ const App = () => {
       </div>
 
       {/* Right sidebar - Online friends */}
-      <div className={`hidden md:block w-64 ${isDarkMode ? 'dark bg-gray-800 text-white' : 'bg-red-50 text-red-800'} p-4 flex-shrink-0`}>
+      <div className="hidden md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0">
         <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">Online Friends</h2>
         <ul className="space-y-2">
           {[1, 2, 3, 4, 5].map((friend) => (
             <li key={friend} className="flex items-center space-x-2">
-              <Avatar src={`https://source.unsplash.com/random/100x100?person${friend}`} alt="Friend" />
-              <span className="text-red-800 dark:text-red-400">Friend {friend}</span>
+              <Avatar src={`https://source.unsplash.com/random/100x100?person${friend}`} alt={`Friend ${friend}`} />
+              <span className="font-semibold text-red-800 dark:text-red-400">Friend {friend}</span>
             </li>
           ))}
         </ul>
