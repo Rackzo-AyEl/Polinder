@@ -180,6 +180,78 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
+
+// Enviar solicitud de match
+// Enviar solicitud de amistad
+export const sendMatchRequest = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const userToRequest = await User.findById(id);
+    const currentUser = await User.findById(req.user._id);
+
+    if (id.toString() === req.user._id.toString()) {
+      return res
+        .status(400)
+        .json({ error: "You can't send a match request to yourself" });
+    }
+
+    if (!userToRequest || !currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Si ya envió la solicitud o ya son amigos
+    if (
+      currentUser.matches.includes(id) ||
+      currentUser.matchRequestsSent.includes(id)
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "Match request already sent or user is already a match",
+        });
+    }
+
+    // Enviar la solicitud
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { matchRequestsSent: id },
+    });
+    await User.findByIdAndUpdate(id, {
+      $push: { matchRequestsReceived: req.user._id },
+    });
+
+    //send notification
+    const newNotification = new Notification({
+      from: req.user._id,
+      to: userToRequest._id,
+      type: "matchRequest",
+    });
+
+    await newNotification.save();
+    //TODO: return the id of the user as a response
+    res.status(200).json({ message: "Match request sent" });
+  } catch (error) {
+    console.error(
+      "Error en el controlador de sendMatchRequest:",
+      error.message
+    );
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -----------------------------------------------------------------------------
 //esta parte se deberia de hacer en base a los gustos de la persona
 export const getSuggestedUsers = async (req, res) => {
