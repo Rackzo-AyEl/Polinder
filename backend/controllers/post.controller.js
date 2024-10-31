@@ -67,27 +67,29 @@ export const likeUnlikePost = async (req, res) => {
 
 export const commentOnPost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(req.user._id);
+    const { text } = req.body;
+    const postId = req.params.id;
+    const userId = req.user._id;
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    if (!text) {
+      return res.status(404).json({ error: "Text field is required" });
     }
 
-    const post = await Post.findById(id);
+    const post = await Post.findById(postId);
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    const newComment = new Comment({
-      text: req.body.text,
-      user: user._id,
-    });
+    const comment = {
+      user: userId,
+      text: text,
+      post: postId,
+    }
 
-    await newComment.save();
-
-    await Post.findByIdAndUpdate(id, { $push: { comments: newComment } });
+    post.comments.push(comment);
+    await post.save();
+    
     res.status(201).json({ message: "Comment created successfully" });
   } catch (error) {
     console.error("Error en el controlador de commentOnPost:", error.message);
