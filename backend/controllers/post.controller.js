@@ -97,24 +97,22 @@ export const commentOnPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const post = await Post.findById(id);
-
-    if (!post) {
+    const post = await Post.findById(req.params.id);
+    if(!post){
       return res.status(404).json({ error: "Post not found" });
     }
 
-    if (post.user.toString() !== user._id.toString()) {
-      return res.status(403).json({ error: "You can't delete this post" });
+    if(post.user.toString() !== req.user._id.toString()){
+      return res.status(401).json({error: "You arent authorized to delete this post"});
     }
 
-    await Post.findByIdAndDelete(id);
+    if(post.img){
+      const imgId = post.img.split('/').pop().split('.')[0]
+      await cloudinary.uploader.destroy(imgId)
+    }
+
+    await Post.findByIdAndDelete(req.params.id);
+
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Error en el controlador de deletePost:", error.message);
