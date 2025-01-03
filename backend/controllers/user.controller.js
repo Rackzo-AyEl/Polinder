@@ -1,6 +1,6 @@
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
-import {v2 as cloudinary} from 'cloudinary'
+import cloudinary from "../cloudinary.js"; // Configuración de Cloudinary
 import bcrypt from "bcryptjs";
 
 
@@ -114,71 +114,69 @@ export const acceptFriendRequest = async (req, res) => {
 };
 
 export const updateUserProfile = async (req, res) => {
-  const { username, fullname, email, currentPassword, newPassword, bio } = req.body;
-  let {profileImage, coverImage} = req.body;
-  const userId = req.user._id;
   try {
-    let user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    const uploadMiddleware = upload.fields([
+      { name: 'profileImage', maxCount: 1 },
+      { name: 'coverImage', maxCount: 1 }
+    ]);
 
-    if ((currentPassword && !newPassword) || (!currentPassword && newPassword)) {
-      return res.status(400).json({ error: "Please provide both current and new passwords" });
-    }
-
-    if (currentPassword && newPassword) { // Update password
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Current password is incorrect" });
-      }
-      if (newPassword.length < 6) {
-        return res.status(400).json({ error: "New password must be at least 6 characters long" });
+    uploadMiddleware(req, res, async (err) => {
+      if (err) {
+        console.error("Error al procesar las imágenes:", err);
+        return res.status(400).json({ error: "Error al procesar las imágenes: " + err.message });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(newPassword, salt);
-
-    }
-
-    // Update user profile
-    if (profileImage) {
-
-      if(user.profileImage){
-        await cloudinary.uploader.destroy(user.profileImage.split('/').pop().split('.')[0])
+      if (!req.files || (!req.files.profileImage && !req.files.coverImage)) {
+        return res.status(400).json({ error: "No se recibieron imágenes válidas." });
       }
 
-      const uploadedResponse = await cloudinary.uploader.upload(profileImage)
-      uploadedResponse.secure_url
-    }
-    if (coverImage) {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
 
-      if(user.coverImage){
-        await cloudinary.uploader.destroy(user.coverImage.split('/').pop().split('.')[0])
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
       }
 
-      const uploadedResponse = await cloudinary.uploader.upload(coverImage)
-      uploadedResponse.secure_url
-    }
+      let profileImageUrl = user.profileImage;
+      let coverImageUrl = user.coverImage;
 
-    user.fullname = fullname || user.fullname;
-    user.email = email || user.email; 
-    user.username = username || user.username; 
-    user.bio = bio || user.bio; 
-    user.profileImage = profileImage || user.profileImage; 
-    user.coverImage = coverImage || user.coverImage;
-    
-    user = await user.save();
+      try {
+        if (req.files.profileImage) {
+          const uploadedResponse = await cloudinary.uploader.upload(req.files.profileImage[0].path, {
+            folder: "profileImages",
+          });
+          profileImageUrl = uploadedResponse.secure_url;
+        }
 
-    user.password = null;
+        if (req.files.coverImage) {
+          const uploadedResponse = await cloudinary.uploader.upload(req.files.coverImage[0].path, {
+            folder: "coverImages",
+          });
+          coverImageUrl = uploadedResponse.secure_url;
+        }
+      } catch (uploadError) {
+        console.error("Error al subir imágenes a Cloudinary:", uploadError);
+        return res.status(500).json({ error: "Error al subir imágenes a Cloudinary." });
+      }
 
-    return res.status(200).json(user);
+      user.profileImage = profileImageUrl;
+      user.coverImage = coverImageUrl;
 
+      await user.save();
+
+      res.status(200).json({
+        message: "Perfil actualizado con éxito",
+        profileImage: profileImageUrl,
+        coverImage: coverImageUrl,
+      });
+    });
   } catch (error) {
-    console.error("Error en el controlador de updateUserProfile:", error.message);
-    res.status(500).json({ error: error.message });
+    console.error("Error en updateUserProfile:", error.message);
+    res.status(500).json({ error: "Error interno del servidor." });
   }
 };
+
+
 
 
 // Enviar solicitud de match
@@ -240,7 +238,18 @@ export const sendMatchRequest = async (req, res) => {
 };
 
 
+//--
 
+// Enviar solicitud de amistad
+export const seeDetails = async (req, res) => {
+  try {
+    const users = await User.find({ _id: { $in: req.body.ids } });
+    res.json(users);
+  } catch (error) {
+    console.error("Error al obtener detalles de usuarios:", error);
+    res.status(500).json({ error: "Error al obtener detalles de usuarios" });
+  }
+};
 
 
 
