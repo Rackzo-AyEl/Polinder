@@ -13,12 +13,14 @@ import {
 } from "lucide-react";
 import { UserContext } from "./UserContext";
 import axios from "axios";
-import Settings from "./Settings"; // Importa el componente Settings
+import Settings from "./Settings"; // Componente de configuración
+import Feed from "./Feed"; // Componente de feed
+import Discover from "./Discover";
 
 const Mainpage = () => {
   const { user, setUser } = useContext(UserContext);
   const [friends, setFriends] = useState([]);
-  const [activeTab, setActiveTab] = useState("cards");
+  const [activeTab, setActiveTab] = useState("feed"); // Configuración predeterminada en el feed
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -137,8 +139,33 @@ const Mainpage = () => {
           <Settings /> // Renderiza el componente Settings
         ) : (
           <div>
-            <h1 className="text-2xl font-bold mb-4">Bienvenido, {user.fullname}</h1>
-            {/* Contenido adicional aquí */}
+            <div className="mb-4">
+              <Button
+                onClick={() => setActiveTab("cards")}
+                className={`mr-4 ${
+                  activeTab === "cards"
+                    ? "bg-red-700 text-white"
+                    : "bg-white text-red-700"
+                } rounded-2xl shadow-lg transition-transform duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-700`}
+              >
+                {" "}
+                <Flame className="mr-2 items-center" /> Discover{" "}
+              </Button>{" "}
+              <Button
+                onClick={() => setActiveTab("feed")}
+                className={`${
+                  activeTab === "feed"
+                    ? "bg-red-700 text-white"
+                    : "bg-white text-red-700"
+                } rounded-2xl shadow-lg transition-transform duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-700`}
+              >
+                {" "}
+                <Heart className="mr-2" /> Feed{" "}
+              </Button>
+            </div>
+
+            {activeTab === "feed" && <Feed />}
+            {activeTab === "cards" && <Discover /> }
           </div>
         )}
       </div>
@@ -153,7 +180,10 @@ const Mainpage = () => {
             friends.map((friend) => (
               <li key={friend._id} className="flex items-center space-x-2">
                 <Avatar
-                  src={friend.profileImage || `https://source.unsplash.com/random/100x100?person`}
+                  src={
+                    friend.profileImage ||
+                    `https://source.unsplash.com/random/100x100?person`
+                  }
                   alt={friend.fullname}
                 />
                 <span className="font-semibold text-red-800 dark:text-red-400">

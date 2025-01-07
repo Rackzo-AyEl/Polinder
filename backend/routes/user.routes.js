@@ -2,6 +2,7 @@ import express from "express";
 import { protectRoute } from "../middleware/protectRoute.js";
 import {
   acceptFriendRequest,
+  getSuggestedUsers,
   getUserFriends,
   getUserProfile,
   seeDetails,
@@ -33,5 +34,8 @@ router.put(
 
 router.post("/match/:id", protectRoute, sendMatchRequest);
 router.post("/details", protectRoute, seeDetails);
+
+
+router.get("/suggested", protectRoute, getSuggestedUsers);
 
 export default router;

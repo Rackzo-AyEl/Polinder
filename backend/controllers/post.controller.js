@@ -5,7 +5,6 @@ import {v2 as cloudinary} from 'cloudinary'
 export const createPost = async (req, res) => {
   try {
     const { text } = req.body;
-    let { img } = req.body;
     const userId = req.user._id.toString();
 
     const user = await User.findById(userId);
@@ -14,28 +13,23 @@ export const createPost = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    if (!text && !img) {
-      return res.status(400).json({ error: "Please provide text or image" });
-    }
-
-    if(img){
-      const uploadedResponse = await cloudinary.uploader.upload(img)
-      img = uploadedResponse.secure_url
+    if (!text) {
+      return res.status(400).json({ error: "Please provide text" });
     }
 
     const newPost = new Post({
       user: userId,
       text,
-      img, 
     });
 
-    await newPost.save();
-    res.status(201).json({ message: "Post created successfully" });
+    const savedPost = await newPost.save();
+    res.status(201).json(savedPost);
   } catch (error) {
     console.error("Error en el controlador de createPost:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const likeUnlikePost = async (req, res) => {
   try {
@@ -119,5 +113,18 @@ export const deletePost = async (req, res) => {
   } catch (error) {
     console.error("Error en el controlador de deletePost:", error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+
+
+export const getPostsByUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const posts = await Post.find({ user: userId }).populate("user", "fullname profileImage");
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error en el controlador de getPostsByUser:", error.message);
+    res.status(500).json({ error: "Error fetching posts" });
   }
 };

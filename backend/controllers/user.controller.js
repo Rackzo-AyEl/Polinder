@@ -266,15 +266,36 @@ export const seeDetails = async (req, res) => {
 export const getSuggestedUsers = async (req, res) => {
   try {
     const userId = req.user._id;
-    const usersFriendsByMe = await User.findById(userId).select("");
+
+    // Obtener el usuario actual
+    const currentUser = await User.findById(userId).select("friends friendRequestsSent matchRequestsSent");
+
+    if (!currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Excluir amigos, solicitudes enviadas, y el usuario actual
+    const excludedIds = [
+      ...currentUser.friends,
+      ...currentUser.friendRequestsSent,
+      ...currentUser.matchRequestsSent,
+      userId,
+    ];
+
+    // Obtener usuarios aleatorios excluyendo los mencionados
+    const suggestedUsers = await User.aggregate([
+      { $match: { _id: { $nin: excludedIds } } },
+      { $sample: { size: 10 } }, // Cambia el tamaño según tus necesidades
+      { $project: { username: 1, fullname: 1, profileImage: 1 } },
+    ]);
+
+    res.status(200).json(suggestedUsers);
   } catch (error) {
-    console.error(
-      "Error en el controlador de getSuggestedUsers:",
-      error.message
-    );
-    res.status(500).json({ error: error.message });
+    console.error("Error en el controlador de getSuggestedUsers:", error.message);
+    res.status(500).json({ error: "Error interno del servidor." });
   }
 };
+
 
 // idk si esta deberia de ser para otra cosa, hice correcciones para lo agregar amigos
 export const getUserFriends = async (req, res) => {
