@@ -12,15 +12,15 @@ import {
 } from "lucide-react";
 import { UserContext } from "./UserContext";
 import axios from "axios";
-import Settings from "./Settings"; // Componente de configuración
-import Feed from "./Feed"; // Componente de feed
+import Settings from "./Settings";
+import Feed from "./Feed";
 import Discover from "./Discover";
-import Requests from "./Requests"; // Importa el componente Requests
+import Requests from "./Requests";
 
 const Mainpage = () => {
   const { user, setUser } = useContext(UserContext);
   const [friends, setFriends] = useState([]);
-  const [activeTab, setActiveTab] = useState("feed"); // Configuración predeterminada en el feed
+  const [activeTab, setActiveTab] = useState("feed");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -52,6 +52,15 @@ const Mainpage = () => {
     document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+      setUser(null); // Limpia el estado del usuario
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   const Button = ({ children, onClick, className }) => (
     <button onClick={onClick} className={`px-4 py-2 rounded-full ${className}`}>
       {children}
@@ -63,7 +72,7 @@ const Mainpage = () => {
   );
 
   if (!user) {
-    return <div>Cargando...</div>;
+    return <div>Cargando...</div>; // Redirigir al componente de login si user es null
   }
 
   return (
@@ -113,7 +122,7 @@ const Mainpage = () => {
             Solicitudes
           </Button>
           <Button
-            onClick={() => {}}
+            onClick={handleLogout}
             className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
           >
             <LogOut className="mr-2" />
@@ -146,7 +155,7 @@ const Mainpage = () => {
           <Settings
             onBack={() => {
               setIsSettingsOpen(false);
-              setActiveTab("cards"); // Regresa automáticamente a Discover
+              setActiveTab("cards");
             }}
           />
         ) : (
@@ -178,33 +187,6 @@ const Mainpage = () => {
             {activeTab === "requests" && <Requests />}
           </div>
         )}
-      </div>
-
-      {/* Right sidebar - Online friends */}
-      <div className="hidden md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0">
-        <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">
-          Amigos en línea
-        </h2>
-        <ul className="space-y-2">
-          {friends.length > 0 ? (
-            friends.map((friend) => (
-              <li key={friend._id} className="flex items-center space-x-2">
-                <Avatar
-                  src={
-                    friend.profileImage ||
-                    `https://source.unsplash.com/random/100x100?person`
-                  }
-                  alt={friend.fullname}
-                />
-                <span className="font-semibold text-red-800 dark:text-red-400">
-                  {friend.fullname}
-                </span>
-              </li>
-            ))
-          ) : (
-            <p>No hay amigos en línea.</p>
-          )}
-        </ul>
       </div>
     </div>
   );

@@ -69,7 +69,7 @@ const Feed = () => {
           value={newPostText}
           onChange={(e) => setNewPostText(e.target.value)}
           placeholder="¿Qué tienes en mente?"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full border border-gray-300 dark:border-gray-700 p-2 rounded bg-white dark:bg-gray-700 focus:ring-2 focus:ring-red-500 focus:outline-none"
         ></textarea>
         <button
           type="submit"
