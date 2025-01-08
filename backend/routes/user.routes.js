@@ -19,15 +19,8 @@ router.post("/friend/:id", protectRoute, sendFriendRequest);
 router.put("/friend/:id/accept", protectRoute, acceptFriendRequest);
 
 // Añade Multer para manejar imágenes
-router.put(
-    "/update",
-    protectRoute, // Middleware de autenticación
-    upload.fields([
-        { name: "profileImage", maxCount: 1 },
-        { name: "coverImage", maxCount: 1 },
-    ]), // Middleware de Multer para manejar archivos
-    updateUserProfile // Controlador
-);
+router.put("/update", protectRoute, updateUserProfile);
+
 
   
   

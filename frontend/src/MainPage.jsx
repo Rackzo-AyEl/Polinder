@@ -91,7 +91,7 @@ const Mainpage = () => {
         } md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0`}
       >
         <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">
-          Profile
+          Perfil
         </h2>
         <div className="mb-4">
           <p className="font-semibold">{user.fullname}</p>
@@ -103,14 +103,14 @@ const Mainpage = () => {
             className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
           >
             <SettingsIcon className="mr-2" />
-            Settings
+            Configuración
           </Button>
           <Button
             onClick={() => {}}
             className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
           >
             <LogOut className="mr-2" />
-            Logout
+            Cerrar sesión
           </Button>
           <div className="flex items-center space-x-2 mt-4">
             <Sun className="text-red-700 dark:text-red-400" />
@@ -136,7 +136,12 @@ const Mainpage = () => {
       {/* Main content */}
       <div className="flex-1 p-4 overflow-hidden">
         {isSettingsOpen ? (
-          <Settings /> // Renderiza el componente Settings
+          <Settings
+            onBack={() => {
+              setIsSettingsOpen(false);
+              setActiveTab("cards"); // Regresa automáticamente a Discover
+            }}
+          />
         ) : (
           <div>
             <div className="mb-4">
@@ -148,9 +153,8 @@ const Mainpage = () => {
                     : "bg-white text-red-700"
                 } rounded-2xl shadow-lg transition-transform duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-700`}
               >
-                {" "}
-                <Flame className="mr-2 items-center" /> Discover{" "}
-              </Button>{" "}
+                <Flame className="mr-2 items-center" /> Discover
+              </Button>
               <Button
                 onClick={() => setActiveTab("feed")}
                 className={`${
@@ -159,13 +163,11 @@ const Mainpage = () => {
                     : "bg-white text-red-700"
                 } rounded-2xl shadow-lg transition-transform duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-700`}
               >
-                {" "}
-                <Heart className="mr-2" /> Feed{" "}
+                <Heart className="mr-2" /> Feed
               </Button>
             </div>
-
             {activeTab === "feed" && <Feed />}
-            {activeTab === "cards" && <Discover /> }
+            {activeTab === "cards" && <Discover />}
           </div>
         )}
       </div>
@@ -173,7 +175,7 @@ const Mainpage = () => {
       {/* Right sidebar - Online friends */}
       <div className="hidden md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0">
         <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">
-          Online Friends
+          Amigos en línea
         </h2>
         <ul className="space-y-2">
           {friends.length > 0 ? (

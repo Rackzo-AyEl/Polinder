@@ -114,67 +114,40 @@ export const acceptFriendRequest = async (req, res) => {
 };
 
 export const updateUserProfile = async (req, res) => {
+  const { username, email, password, bio } = req.body;
+
   try {
-    const uploadMiddleware = upload.fields([
-      { name: 'profileImage', maxCount: 1 },
-      { name: 'coverImage', maxCount: 1 }
-    ]);
+    const user = await User.findById(req.user._id);
 
-    uploadMiddleware(req, res, async (err) => {
-      if (err) {
-        console.error("Error al procesar las imágenes:", err);
-        return res.status(400).json({ error: "Error al procesar las imágenes: " + err.message });
-      }
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
 
-      if (!req.files || (!req.files.profileImage && !req.files.coverImage)) {
-        return res.status(400).json({ error: "No se recibieron imágenes válidas." });
-      }
+    // Actualizar los campos solo si son proporcionados
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (bio) user.bio = bio;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
 
-      const userId = req.user._id;
-      const user = await User.findById(userId);
+    await user.save();
 
-      if (!user) {
-        return res.status(404).json({ error: "Usuario no encontrado" });
-      }
-
-      let profileImageUrl = user.profileImage;
-      let coverImageUrl = user.coverImage;
-
-      try {
-        if (req.files.profileImage) {
-          const uploadedResponse = await cloudinary.uploader.upload(req.files.profileImage[0].path, {
-            folder: "profileImages",
-          });
-          profileImageUrl = uploadedResponse.secure_url;
-        }
-
-        if (req.files.coverImage) {
-          const uploadedResponse = await cloudinary.uploader.upload(req.files.coverImage[0].path, {
-            folder: "coverImages",
-          });
-          coverImageUrl = uploadedResponse.secure_url;
-        }
-      } catch (uploadError) {
-        console.error("Error al subir imágenes a Cloudinary:", uploadError);
-        return res.status(500).json({ error: "Error al subir imágenes a Cloudinary." });
-      }
-
-      user.profileImage = profileImageUrl;
-      user.coverImage = coverImageUrl;
-
-      await user.save();
-
-      res.status(200).json({
-        message: "Perfil actualizado con éxito",
-        profileImage: profileImageUrl,
-        coverImage: coverImageUrl,
-      });
+    res.status(200).json({
+      message: "Perfil actualizado con éxito",
+      user: {
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+      },
     });
   } catch (error) {
     console.error("Error en updateUserProfile:", error.message);
-    res.status(500).json({ error: "Error interno del servidor." });
+    res.status(500).json({ error: "Error al actualizar el perfil" });
   }
 };
+
 
 
 
