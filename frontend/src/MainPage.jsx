@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
   Heart,
-  UserPlus,
   Settings as SettingsIcon,
   LogOut,
   Flame,
-  X,
-  Menu,
   MessageCircle,
   Moon,
+  Menu,
   Sun,
+  UserPlus,
 } from "lucide-react";
 import { UserContext } from "./UserContext";
 import axios from "axios";
 import Settings from "./Settings"; // Componente de configuración
 import Feed from "./Feed"; // Componente de feed
 import Discover from "./Discover";
+import Requests from "./Requests"; // Importa el componente Requests
 
 const Mainpage = () => {
   const { user, setUser } = useContext(UserContext);
@@ -99,11 +99,18 @@ const Mainpage = () => {
         </div>
         <nav className="space-y-2">
           <Button
-            onClick={() => setIsSettingsOpen(true)} // Abre Settings
+            onClick={() => setIsSettingsOpen(true)}
             className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
           >
             <SettingsIcon className="mr-2" />
             Configuración
+          </Button>
+          <Button
+            onClick={() => setActiveTab("requests")}
+            className="w-full justify-start text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700"
+          >
+            <UserPlus className="mr-2" />
+            Solicitudes
           </Button>
           <Button
             onClick={() => {}}
@@ -168,6 +175,7 @@ const Mainpage = () => {
             </div>
             {activeTab === "feed" && <Feed />}
             {activeTab === "cards" && <Discover />}
+            {activeTab === "requests" && <Requests />}
           </div>
         )}
       </div>

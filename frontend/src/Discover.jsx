@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  Flame,
-  UserPlus,
-  X,
-  Heart,
-} from "lucide-react";
+import { Flame, UserPlus, X, Heart } from "lucide-react";
 import axios from "axios";
 import { UserContext } from "./UserContext";
 
@@ -50,7 +45,7 @@ const Discover = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full max-h-[600px] overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md">
       {suggestedUsers.length > 0 ? (
         suggestedUsers.map((suggestedUser) => (
           <div key={suggestedUser._id} className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow-md">

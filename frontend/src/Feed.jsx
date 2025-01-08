@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "./UserContext";
-import { Heart, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 const Feed = () => {
   const { user } = useContext(UserContext);
   const [posts, setPosts] = useState([]);
   const [newPostText, setNewPostText] = useState("");
 
-  // Cargar posts
-  // Cargar posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -25,29 +23,21 @@ const Feed = () => {
     fetchPosts();
   }, []);
 
-  // Crear post
-  // Crear post
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    const newPost = {
-      text: newPostText,
-    };
+    const newPost = { text: newPostText };
 
     try {
       const response = await axios.post(
         "http://localhost:5000/api/posts/create",
         newPost,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
-      // Limpia el formulario
       setNewPostText("");
 
-      // Actualiza el estado de los posts para incluir el nuevo post
       const createdPost = {
-        ...response.data, // Datos del nuevo post devueltos por el backend
+        ...response.data,
         user: {
           fullname: user.fullname,
           profileImage: user.profileImage,
@@ -61,7 +51,6 @@ const Feed = () => {
     }
   };
 
-  // Borrar post
   const handleDeletePost = async (postId) => {
     try {
       await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
@@ -74,8 +63,7 @@ const Feed = () => {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Formulario para crear posts */}
+    <div className="space-y-4 h-full max-h-[600px] overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md">
       <form onSubmit={handleCreatePost} className="mb-6">
         <textarea
           value={newPostText}
@@ -91,8 +79,6 @@ const Feed = () => {
         </button>
       </form>
 
-      {/* Mostrar posts */}
-      {/* Mostrar posts */}
       {posts.length > 0 ? (
         posts.map((post) => (
           <div
@@ -116,7 +102,6 @@ const Feed = () => {
                   </p>
                 </div>
               </div>
-              {/* Botón de eliminar */}
               {post.user._id === user._id && (
                 <button
                   onClick={() => handleDeletePost(post._id)}

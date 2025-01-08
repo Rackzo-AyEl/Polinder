@@ -316,3 +316,63 @@ export const getUserFriends = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+export const getRequests = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .populate("friendRequestsReceived", "username fullname profileImage")
+      .populate("matchRequestsReceived", "username fullname profileImage");
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.status(200).json({
+      friendRequests: user.friendRequestsReceived,
+      matchRequests: user.matchRequestsReceived,
+    });
+  } catch (error) {
+    console.error("Error al obtener solicitudes:", error.message);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+
+
+export const acceptMatchRequest = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const userToAccept = await User.findById(id);
+    const currentUser = await User.findById(req.user._id);
+
+    if (!userToAccept || !currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Verificar que exista la solicitud de match pendiente
+    if (!currentUser.matchRequestsReceived.includes(id)) {
+      return res.status(400).json({ error: "No match request found" });
+    }
+
+    // Agregar como match
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { matches: id },
+      $pull: { matchRequestsReceived: id },
+    });
+    await User.findByIdAndUpdate(id, {
+      $push: { matches: req.user._id },
+      $pull: { matchRequestsSent: req.user._id },
+    });
+
+    // Enviar respuesta exitosa
+    res.status(200).json({ message: "Match request accepted" });
+  } catch (error) {
+    console.error(
+      "Error en el controlador de acceptMatchRequest:",
+      error.message
+    );
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
