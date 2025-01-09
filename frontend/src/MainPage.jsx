@@ -188,6 +188,33 @@ const Mainpage = () => {
           </div>
         )}
       </div>
+
+      {/* Right sidebar - Online friends */}
+      <div className="hidden md:block w-64 bg-red-50 text-red-800 dark:bg-gray-800 dark:text-white p-4 flex-shrink-0 overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4 text-red-800 dark:text-red-400">
+          Amigos en línea
+        </h2>
+        <ul className="space-y-2">
+          {friends.length > 0 ? (
+            friends.map((friend) => (
+              <li key={friend._id} className="flex items-center space-x-2">
+                <Avatar
+                  src={
+                    friend.profileImage ||
+                    `https://source.unsplash.com/random/100x100?person`
+                  }
+                  alt={friend.fullname}
+                />
+                <span className="font-semibold text-red-800 dark:text-red-400">
+                  {friend.fullname}
+                </span>
+              </li>
+            ))
+          ) : (
+            <p>No hay amigos en línea.</p>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };
